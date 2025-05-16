@@ -59,3 +59,40 @@ Message: "{payload.message}"
 
     except Exception as e:
         return {"error": str(e)}
+
+class SignalInput(BaseModel):
+    message: str
+
+@app.post("/score-signal")
+async def score_signal(payload: SignalInput):
+    try:
+        chat_response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that classifies customer feedback into a structured JSON response."
+                },
+                {
+                    "role": "user",
+                    "content": f"""Classify the following customer message and return only JSON in this format:
+
+{{
+  "sentiment": "...",
+  "customerTier": "...",
+  "summary": "..."
+}}
+
+Message: "{payload.message}"
+"""
+                }
+            ],
+            temperature=0.2,
+            max_tokens=150
+        )
+
+        content = chat_response.choices[0].message.content.strip()
+        return json.loads(content)
+
+    except Exception as e:
+        return {"error": str(e)}
