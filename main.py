@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 import os
 import json
 import openai  # ✅ This was missing!
+import logging
+
+# configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Load variables from .env file
 load_dotenv()
@@ -28,6 +32,7 @@ class SignalInput(BaseModel):
 
 @app.post("/score-signal")
 async def score_signal(payload: SignalInput):
+    logging.info(f"📥 Received signal: {payload.message}")
     try:
         chat_response = client.chat.completions.create(
             model="gpt-3.5-turbo",
